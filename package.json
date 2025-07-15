@@ -5,8 +5,8 @@
   "main": "index.html",
   "scripts": {
     "dev": "npx serve .",
-    "build": "echo 'No build step required for static site'",
-    "deploy": "npx wrangler pages deploy . --project-name=lexilearn"
+    "build": "echo 'Static site - no build required'",
+    "start": "npx serve ."
   },
   "keywords": [
     "english",
