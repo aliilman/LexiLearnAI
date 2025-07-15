@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexiLearn - İngilizce Kelime Öğrenme Uygulaması</title>
+    <meta name="description" content="Modern ve etkili İngilizce kelime öğrenme uygulaması. Günlük 5 kelime öğrenin, çoktan seçmeli testlerle pekiştirin.">
+    <meta name="keywords" content="İngilizce, kelime öğrenme, dil öğrenme, vocabulary, English learning">
+    <meta name="author" content="LexiLearn">
+    <meta property="og:title" content="LexiLearn - İngilizce Kelime Öğrenme">
+    <meta property="og:description" content="Modern ve etkili İngilizce kelime öğrenme uygulaması">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">📚 LexiLearn</h1>
+            <div class="header-actions">
+                <div class="user-stats">
+                    <span class="streak">🔥 Günlük Seri: <span id="dailyStreak">0</span></span>
+                    <span class="total-words">📖 Toplam Kelime: <span id="totalWords">0</span></span>
+                </div>
+                <button class="btn btn-admin" onclick="window.open('admin.html', '_blank')">🔧 Yönetici</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="progress-section">
+                <h2>Bugünün Kelimeleri</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text">
+                    <span id="currentWord">0</span> / 5 kelime tamamlandı
+                </p>
+            </div>
+
+            <div class="word-card" id="wordCard">
+                <div class="word-header">
+                    <h3 class="english-word" id="englishWord">Loading...</h3>
+                    <button class="pronunciation-btn" id="pronunciationBtn">🔊</button>
+                </div>
+                
+                <div class="word-details">
+                    <div class="turkish-meaning">
+                        <h4>Türkçe Anlamı:</h4>
+                        <p id="turkishMeaning">Yükleniyor...</p>
+                    </div>
+
+                    <div class="example-sentence">
+                        <h4>Örnek Cümle:</h4>
+                        <p class="english-example" id="englishExample">Loading example...</p>
+                        <p class="turkish-example" id="turkishExample">Örnek yükleniyor...</p>
+                    </div>
+
+                    <div class="synonyms">
+                        <h4>Eş Anlamlı Kelimeler:</h4>
+                        <div class="word-tags" id="synonyms"></div>
+                    </div>
+
+                    <div class="antonyms">
+                        <h4>Zıt Anlamlı Kelimeler:</h4>
+                        <div class="word-tags" id="antonyms"></div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="studyBtn">📖 Kelimeyi İncele</button>
+                    <button class="btn btn-primary" id="testBtn" disabled>✏️ Teste Geç</button>
+                </div>
+            </div>
+
+            <div class="test-section" id="testSection" style="display: none;">
+                <div class="test-card">
+                    <h3>Kelime Testi</h3>
+                    <div class="test-question" id="testQuestion">
+                        <!-- Test sorusu ve seçenekler buraya dinamik olarak eklenecek -->
+                    </div>
+                    <div class="test-buttons">
+                        <button class="btn btn-secondary" id="backToStudyBtn">⬅️ Geri Dön</button>
+                    </div>
+                    <div class="test-result" id="testResult" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="btn btn-outline" id="prevBtn" disabled>⬅️ Önceki</button>
+                <button class="btn btn-outline" id="nextBtn" disabled>Sonraki ➡️</button>
+            </div>
+
+            <div class="completion-message" id="completionMessage" style="display: none;">
+                <div class="completion-card">
+                    <h2>🎉 Tebrikler!</h2>
+                    <p>Bugünün 5 kelimesini başarıyla tamamladınız!</p>
+                    <p>Günlük seriniz: <span id="finalStreak"></span></p>
+                    <button class="btn btn-primary" id="newDayBtn">📅 Yeni Gün</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="date_manager.js"></script>
+    <script src="words_embedded.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
