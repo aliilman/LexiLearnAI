@@ -40,10 +40,33 @@ body {
     margin: 0;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 .user-stats {
     display: flex;
     gap: 20px;
     font-weight: 500;
+}
+
+.btn-admin {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-admin:hover {
+    background: #d97706;
+    transform: translateY(-1px);
 }
 
 .user-stats span {
@@ -518,6 +541,11 @@ body {
         flex-direction: column;
         gap: 15px;
         text-align: center;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        gap: 15px;
     }
     
     .user-stats {
