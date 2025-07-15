@@ -224,6 +224,13 @@ function startTest() {
 function showTestQuestion() {
     const word = wordsDatabase[currentTestIndex];
     
+    // Test durumunu sıfırla
+    isAnswerSubmitted = false;
+    if (autoAdvanceTimeout) {
+        clearTimeout(autoAdvanceTimeout);
+        autoAdvanceTimeout = null;
+    }
+    
     // Test sorusunu oluştur
     const testSentence = word.example.replace(new RegExp(word.english, 'gi'), '_____');
     
@@ -287,7 +294,14 @@ function backToStudy() {
     elements.testSection.style.display = 'none';
 }
 
+let isAnswerSubmitted = false;
+let autoAdvanceTimeout = null;
+
 function selectAnswer(selectedAnswer) {
+    // Eğer cevap zaten verilmişse, tekrar işlem yapma
+    if (isAnswerSubmitted) return;
+    
+    isAnswerSubmitted = true;
     const correctAnswer = wordsDatabase[currentTestIndex].english;
     const isCorrect = selectedAnswer === correctAnswer;
     
@@ -321,6 +335,7 @@ function selectAnswer(selectedAnswer) {
         elements.testResult.innerHTML = `
             <div>🎉 Doğru! Tebrikler!</div>
             <div><strong>${correctAnswer}</strong> kelimesini doğru bildiniz!</div>
+            <div class="next-info">3 saniye sonra sonraki soruya geçilecek...</div>
         `;
     } else {
         elements.testResult.className = 'test-result incorrect';
@@ -328,21 +343,54 @@ function selectAnswer(selectedAnswer) {
             <div>❌ Yanlış cevap</div>
             <div>Doğru cevap: <strong>${correctAnswer}</strong></div>
             <div>Seçtiğiniz: <strong>${selectedAnswer}</strong></div>
+            <div class="next-info">3 saniye sonra sonraki soruya geçilecek...</div>
         `;
     }
     
+    // Manuel geçiş butonunu göster
+    showManualNextButton();
+    
+    // Otomatik geçiş (3 saniye sonra)
+    autoAdvanceTimeout = setTimeout(() => {
+        proceedToNextQuestion();
+    }, 3000);
+}
+
+function showManualNextButton() {
+    // Manuel geçiş butonu ekle
+    const manualNextBtn = document.createElement('button');
+    manualNextBtn.className = 'btn btn-primary manual-next-btn';
+    manualNextBtn.innerHTML = currentTestIndex === 4 ? '🎯 Sonuçları Gör' : '➡️ Sonraki Soru';
+    manualNextBtn.onclick = () => {
+        clearTimeout(autoAdvanceTimeout);
+        proceedToNextQuestion();
+    };
+    
+    elements.testResult.appendChild(manualNextBtn);
+}
+
+function proceedToNextQuestion() {
+    // Eğer zaten işlem yapılmışsa, tekrar yapma
+    if (!isAnswerSubmitted) return;
+    
+    // Timeout'u temizle
+    if (autoAdvanceTimeout) {
+        clearTimeout(autoAdvanceTimeout);
+        autoAdvanceTimeout = null;
+    }
+    
+    // Manuel butonları kaldır
+    document.querySelectorAll('.manual-next-btn').forEach(btn => btn.remove());
+    
     // Son soru mu?
     if (currentTestIndex === 4) {
-        setTimeout(() => {
-            showTestResults();
-        }, 3000);
+        showTestResults();
     } else {
         // Sonraki soruya geç
-        setTimeout(() => {
-            currentTestIndex++;
-            showTestQuestion();
-            updateButtonStates();
-        }, 3000);
+        currentTestIndex++;
+        isAnswerSubmitted = false; // Yeni soru için sıfırla
+        showTestQuestion();
+        updateButtonStates();
     }
 }
 
@@ -369,11 +417,13 @@ function previousWord() {
 
 function nextWord() {
     if (isTestMode) {
-        if (currentTestIndex < 4) {
-            currentTestIndex++;
-            showTestQuestion();
-            updateButtonStates();
+        // Test modunda manuel geçiş
+        if (isAnswerSubmitted) {
+            // Cevap verildiyse, otomatik geçişi iptal et ve manuel geç
+            clearTimeout(autoAdvanceTimeout);
+            proceedToNextQuestion();
         }
+        // Cevap verilmediyse hiçbir şey yapma
     } else {
         if (currentWordIndex < 4) {
             currentWordIndex++;
