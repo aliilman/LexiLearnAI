@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexiLearn - Yönetici Paneli</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>🔧 LexiLearn Yönetici Paneli</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="window.open('index.html', '_blank')">📱 Ana Uygulamayı Aç</button>
+                <button class="btn btn-primary" id="saveAllBtn">💾 Tüm Değişiklikleri Kaydet</button>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <div class="date-selector">
+                <h2>📅 Tarih Seçimi</h2>
+                <div class="date-controls">
+                    <label for="startDate">Başlangıç Tarihi:</label>
+                    <input type="date" id="startDate" value="">
+                    <button class="btn btn-outline" id="loadDatesBtn">📊 7 Günlük Verileri Yükle</button>
+                    <button class="btn btn-outline" id="todayBtn">📅 Bugünden Başla</button>
+                </div>
+                <div class="date-info">
+                    <p id="dateRangeInfo">Tarih aralığı seçilmedi</p>
+                </div>
+            </div>
+
+            <div class="words-container" id="wordsContainer">
+                <div class="loading-message">
+                    📅 Lütfen bir tarih seçin ve verileri yükleyin
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <button class="btn btn-success" id="addNewDayBtn">➕ Yeni Gün Ekle</button>
+                <button class="btn btn-warning" id="exportDataBtn">📤 Verileri Dışa Aktar</button>
+                <button class="btn btn-info" id="importDataBtn">📥 Veri İçe Aktar</button>
+                <button class="btn btn-danger" id="clearLocalStorageBtn">🗑️ Değişiklikleri Sıfırla</button>
+                <input type="file" id="importFileInput" accept=".csv,.json" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Kelime Düzenleme Modal -->
+        <div class="modal" id="editModal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>✏️ Kelime Düzenle</h3>
+                    <button class="close-btn" id="closeModalBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="editWordForm">
+                        <div class="form-group">
+                            <label for="editDate">Tarih:</label>
+                            <input type="date" id="editDate" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEnglish">İngilizce Kelime:</label>
+                            <input type="text" id="editEnglish" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTurkish">Türkçe Anlamı:</label>
+                            <input type="text" id="editTurkish" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editExample">Örnek Cümle (İngilizce):</label>
+                            <textarea id="editExample" rows="2" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editExampleTurkish">Örnek Cümle (Türkçe):</label>
+                            <textarea id="editExampleTurkish" rows="2" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Eş Anlamlı Kelimeler:</label>
+                                <input type="text" id="editSynonym1" placeholder="1. eş anlamlı">
+                                <input type="text" id="editSynonym2" placeholder="2. eş anlamlı">
+                                <input type="text" id="editSynonym3" placeholder="3. eş anlamlı">
+                                <input type="text" id="editSynonym4" placeholder="4. eş anlamlı">
+                            </div>
+                            <div class="form-group">
+                                <label>Zıt Anlamlı Kelimeler:</label>
+                                <input type="text" id="editAntonym1" placeholder="1. zıt anlamlı">
+                                <input type="text" id="editAntonym2" placeholder="2. zıt anlamlı">
+                                <input type="text" id="editAntonym3" placeholder="3. zıt anlamlı">
+                                <input type="text" id="editAntonym4" placeholder="4. zıt anlamlı">
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" id="cancelEditBtn">❌ İptal</button>
+                            <button type="submit" class="btn btn-primary">✅ Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yeni Gün Ekleme Modal -->
+        <div class="modal" id="newDayModal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>➕ Yeni Gün Ekle</h3>
+                    <button class="close-btn" id="closeNewDayModalBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="newDayForm">
+                        <div class="form-group">
+                            <label for="newDayDate">Tarih:</label>
+                            <input type="date" id="newDayDate" required>
+                        </div>
+                        <div id="newWordsContainer">
+                            <!-- 5 kelime için form alanları buraya eklenecek -->
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" id="cancelNewDayBtn">❌ İptal</button>
+                            <button type="submit" class="btn btn-primary">✅ Günü Ekle</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="date_manager.js"></script>
+    <script src="words_embedded.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
