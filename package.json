@@ -1,0 +1,23 @@
+{
+  "name": "lexilearn",
+  "version": "1.0.0",
+  "description": "Modern İngilizce kelime öğrenme uygulaması",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "npx wrangler pages deploy . --project-name=lexilearn"
+  },
+  "keywords": [
+    "english",
+    "vocabulary",
+    "learning",
+    "education",
+    "turkish"
+  ],
+  "author": "LexiLearn Team",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
