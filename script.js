@@ -473,14 +473,31 @@ function updateStats() {
 async function completeDay() {
     const today = dateManager ? dateManager.getTodayString() : new Date().toISOString().split('T')[0];
     
+    console.log('completeDay çağrıldı - Bugün:', today, 'Son tamamlama:', lastCompletionDate);
+    
     // Bugün zaten tamamlanmış mı kontrol et
     if (lastCompletionDate === today) {
-        console.log('Bugün zaten tamamlanmış, seri artırılmayacak');
+        console.log('UYARI: Bugün zaten tamamlanmış, seri artırılmayacak!');
         // Sadece tebrik mesajını göster, seriyi artırma
         elements.finalStreak.textContent = dailyStreak;
         elements.completionMessage.style.display = 'flex';
+        
+        // Kullanıcıya bilgi ver
+        const completionCard = document.querySelector('.completion-card');
+        if (completionCard) {
+            const existingWarning = completionCard.querySelector('.daily-warning');
+            if (!existingWarning) {
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'daily-warning';
+                warningDiv.style.cssText = 'background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin: 10px 0; border: 1px solid #ffeaa7;';
+                warningDiv.innerHTML = '⚠️ Bugün zaten test tamamladınız. Günlük seri sadece günde bir kez artırılır.';
+                completionCard.insertBefore(warningDiv, completionCard.querySelector('.btn'));
+            }
+        }
         return;
     }
+    
+    console.log('Yeni gün tespit edildi, seri artırılıyor:', dailyStreak, '->', dailyStreak + 1);
     
     // Günlük seriyi artır (sadece yeni gün ise)
     dailyStreak++;
@@ -489,6 +506,8 @@ async function completeDay() {
     
     // Hem localStorage hem de dosyaya kaydet
     await saveStreakData();
+    
+    console.log('Seri başarıyla artırıldı. Yeni seri:', dailyStreak);
     
     // Tebrik mesajını göster
     elements.finalStreak.textContent = dailyStreak;
