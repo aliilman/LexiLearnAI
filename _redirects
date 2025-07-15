@@ -1,7 +1,0 @@
-# Redirects for LexiLearn
-/admin  /admin.html  200
-/test   /test_local.html  200
-/app    /app.html  200
-
-# Fallback for SPA
-/*  /index.html  200

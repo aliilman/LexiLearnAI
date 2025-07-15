@@ -1,0 +1,12 @@
+# LexiLearn Admin Panel Gizli Erişim
+
+Admin paneline erişim için gizli URL:
+https://SITE_URL/secret-admin-panel-2024
+
+Bu URL'yi kimseyle paylaşmayın!
+
+Alternatif direkt erişim:
+https://SITE_URL/admin.html
+
+Not: Ana sayfada admin butonu kaldırıldı.
+Sadece bu URL'leri bilen kişiler admin paneline erişebilir.
