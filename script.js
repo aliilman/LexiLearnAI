@@ -8,9 +8,9 @@ let studiedWords = 0; // Öğrenilen kelime sayısı
 let currentTestIndex = 0; // Test modunda hangi kelimede olduğumuz
 let isTestMode = false; // Test modunda mı yoksa öğrenme modunda mı
 let testAnswers = []; // Test cevapları
-let dailyStreak = parseInt(localStorage.getItem('dailyStreak') || '0');
-let totalWords = parseInt(localStorage.getItem('totalWords') || '0');
-let lastCompletionDate = localStorage.getItem('lastCompletionDate');
+let dailyStreak = 0;
+let totalWords = 0;
+let lastCompletionDate = null;
 
 // DOM elementleri
 const elements = {
@@ -41,6 +41,7 @@ const elements = {
 
 // Sayfa yüklendiğinde başlat
 document.addEventListener('DOMContentLoaded', async function() {
+    await loadStreakData();
     await initializeApp();
     setupEventListeners();
     loadCurrentWord();
@@ -96,6 +97,19 @@ async function initializeApp() {
             currentTestIndex = 0;
             isTestMode = false;
             testAnswers = [];
+            
+            // Seri kontrolü: Eğer son tamamlama tarihi dünden eski ise seriyi sıfırla
+            if (lastCompletionDate) {
+                const lastDate = new Date(lastCompletionDate);
+                const todayDate = new Date(today);
+                const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+                
+                if (diffDays > 1) {
+                    console.log(`${diffDays} gün atlandı, seri sıfırlanıyor`);
+                    dailyStreak = 0;
+                    await saveStreakData();
+                }
+            }
         }
         
         updateStats();
@@ -456,16 +470,25 @@ function updateStats() {
     elements.totalWords.textContent = totalWords;
 }
 
-function completeDay() {
-    // Günlük seriyi artır
+async function completeDay() {
+    const today = dateManager ? dateManager.getTodayString() : new Date().toISOString().split('T')[0];
+    
+    // Bugün zaten tamamlanmış mı kontrol et
+    if (lastCompletionDate === today) {
+        console.log('Bugün zaten tamamlanmış, seri artırılmayacak');
+        // Sadece tebrik mesajını göster, seriyi artırma
+        elements.finalStreak.textContent = dailyStreak;
+        elements.completionMessage.style.display = 'flex';
+        return;
+    }
+    
+    // Günlük seriyi artır (sadece yeni gün ise)
     dailyStreak++;
     totalWords += 5;
+    lastCompletionDate = today;
     
-    // Local storage'a kaydet - DateManager formatını kullan
-    const today = dateManager ? dateManager.getTodayString() : new Date().toISOString().split('T')[0];
-    localStorage.setItem('dailyStreak', dailyStreak.toString());
-    localStorage.setItem('totalWords', totalWords.toString());
-    localStorage.setItem('lastCompletionDate', today);
+    // Hem localStorage hem de dosyaya kaydet
+    await saveStreakData();
     
     // Tebrik mesajını göster
     elements.finalStreak.textContent = dailyStreak;
@@ -568,9 +591,9 @@ function reviewWords() {
     updateButtonStates();
 }
 
-function finishTest() {
+async function finishTest() {
     // Günü tamamla
-    completeDay();
+    await completeDay();
 }
 
 // CSV formatını uygulama formatına dönüştür
@@ -697,5 +720,67 @@ function pronounceWord() {
         setTimeout(() => {
             elements.pronunciationBtn.style.transform = 'scale(1)';
         }, 200);
+    }
+}
+
+// Seri verilerini dosyadan yükle
+async function loadStreakData() {
+    try {
+        // Önce dosyadan yüklemeyi dene
+        const response = await fetch('streak_data.json');
+        if (response.ok) {
+            const data = await response.json();
+            dailyStreak = data.dailyStreak || 0;
+            totalWords = data.totalWords || 0;
+            lastCompletionDate = data.lastCompletionDate;
+            console.log('Seri verileri dosyadan yüklendi:', data);
+        } else {
+            throw new Error('Dosya bulunamadı');
+        }
+    } catch (error) {
+        console.log('Dosyadan yüklenemedi, localStorage\'dan yükleniyor:', error.message);
+        // Fallback: localStorage'dan yükle
+        dailyStreak = parseInt(localStorage.getItem('dailyStreak') || '0');
+        totalWords = parseInt(localStorage.getItem('totalWords') || '0');
+        lastCompletionDate = localStorage.getItem('lastCompletionDate');
+        
+        // İlk kez dosyaya kaydet
+        await saveStreakData();
+    }
+}
+
+// Seri verilerini hem dosyaya hem localStorage'a kaydet
+async function saveStreakData() {
+    const data = {
+        dailyStreak: dailyStreak,
+        totalWords: totalWords,
+        lastCompletionDate: lastCompletionDate,
+        streakHistory: JSON.parse(localStorage.getItem('streakHistory') || '[]'),
+        lastUpdated: new Date().toISOString()
+    };
+    
+    // localStorage'a kaydet (hızlı erişim için)
+    localStorage.setItem('dailyStreak', dailyStreak.toString());
+    localStorage.setItem('totalWords', totalWords.toString());
+    localStorage.setItem('lastCompletionDate', lastCompletionDate || '');
+    
+    try {
+        // Dosyaya kaydetmeyi dene (Netlify Functions kullanarak)
+        const response = await fetch('/.netlify/functions/save-streak', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            console.log('Seri verileri dosyaya kaydedildi');
+        } else {
+            console.log('Dosyaya kaydetme başarısız, sadece localStorage kullanılıyor');
+        }
+    } catch (error) {
+        console.log('Dosyaya kaydetme hatası:', error.message);
+        console.log('Veriler sadece localStorage\'da saklanıyor');
     }
 }
